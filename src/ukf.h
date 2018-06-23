@@ -65,8 +65,7 @@ public:
   int n_aug_;
 
   ///* Sigma point spreading parameter
-  double lambda_;
-
+  double lamda_;
 
   /**
    * Constructor
