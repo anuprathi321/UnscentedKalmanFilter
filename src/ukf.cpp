@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 3;
+  std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.5;
+  std_yawdd_ = 0.3;
   
   //DO NOT MODIFY measurement noise values below these are provided by the sensor manufacturer.
   // Laser measurement noise standard deviation position1 in m
@@ -44,7 +44,7 @@ UKF::UKF() {
   std_radphi_ = 0.03;
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_ = 0.3;
+  std_radrd_ = 0.35;
   //DO NOT MODIFY measurement noise values above these are provided by the sensor manufacturer.
   
   is_initialized_ = false;
@@ -75,7 +75,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   */
   if( !is_initialized_)
   {
-    x_ << 1, 0.75, 1, 1, 0.2;
+    //x_ << 1, 0.75, 1, 1, 0.2;
     P_ << 1,0,0,0,0,
           0,1,0,0,0,
           0,0,1,0,0,
@@ -89,6 +89,12 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
       float x = rho* cos(phi);
       float y = rho * sin(phi);
+      float rho_dot = meas_package.raw_measurements_(2);
+      float v_x = rho_dot * cos(phi);
+      float v_y = rho_dot * sin(phi);
+      x_(2) = sqrt(v_x*v_x + v_y*v_y ); // v
+      x_(3) = atan2(v_x,v_y); // si
+      x_(4) = 0; // si_dot
 
       x_(0) = x;
       x_(1) = y;
@@ -197,7 +203,7 @@ void UKF::Prediction(double delta_t) {
     else
     {
       px_p = p_x + v*delta_t*cos(yaw);
-      px_p = p_y + v*delta_t*sin(yaw);
+      py_p = p_y + v*delta_t*sin(yaw);
     }
 
     double v_p = v;
